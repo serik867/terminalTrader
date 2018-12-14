@@ -50,6 +50,8 @@ def new_id_num():
         newid = generate_id_number()
     return newid
 
+
+
 class Account:
 # initiate class from credentials or empty
     def __init__(self, row={}, username='', password=''):
@@ -65,6 +67,7 @@ class Account:
         self.username = row.get('username')
         self.firstname = row.get('firstname')
         self.lastname = row.get('lastname')
+        self.account_type = row.get('account_type')
         self.account_id = row.get('account_id')
         self.pass_hash = row.get('pass_hash')
         self.balance = row.get('balance', 0.0)
@@ -83,6 +86,19 @@ class Account:
         else:
             self._set_from_row({})
 
+    def user_admin(self):
+        if self.account_type.upper() == 'ADMIN':
+            return True
+        else:
+            return False
+    
+    def get_accounts(self):
+        with OpenCursor() as cur:
+            SQL = """ SELECT * FROM accounts; """
+            cur.execute(SQL)
+            rows = cur.fetchall()
+        return [list(row) for row in rows]
+
 #set new account_id by use function called new_id_num()
     def set_new_id(self):
         self.account_id = new_id_num()
@@ -96,21 +112,21 @@ class Account:
         if self:
             with OpenCursor() as cur:
                 SQL = """ UPDATE accounts SET 
-                    username = ?, firstname = ?, lastname = ?,
+                    username = ?, firstname = ?, lastname = ?, account_type = ?,
                     account_id = ?, pass_hash = ?, balance = ?
                     WHERE pk=?; """
-                values = (self.username, self.firstname, self.lastname,
+                values = (self.username, self.firstname, self.lastname, self.account_type,
                           self.account_id, self.pass_hash, self.balance,
                           self.pk)
                 cur.execute(SQL, values)
         else:
             with OpenCursor() as cur:
                 SQL = """ INSERT INTO accounts (
-                    username, firstname, lastname,
+                    username, firstname, lastname, account_type,
                     account_id, pass_hash, balance)
                     VALUES (
-                    ?, ?, ?, ?, ?, ?); """
-                values = (self.username, self.firstname, self.lastname,
+                    ?, ?, ?, ?, ?, ?, ?); """
+                values = (self.username, self.firstname, self.lastname,self.account_type,
                           self.account_id, self.pass_hash, self.balance)
                 cur.execute(SQL, values)
                 self.pk = cur.lastrowid

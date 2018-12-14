@@ -19,6 +19,7 @@ def run():
         username VARCHAR,
         firstname VARCHAR,
         lastname VARCHAR,
+        account_type VARCHAR,
         account_id VARCHAR,
         pass_hash VARCHAR(128),
         balance FLOAT,
